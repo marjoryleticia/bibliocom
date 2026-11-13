@@ -1,0 +1,71 @@
+
+name: CI - Bibliocom
+
+on:
+  push:
+    branches: [main, melhorias-bibliocom]
+  pull_request:
+    branches: [main, melhorias-bibliocom]
+
+jobs:
+  validar-api:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bibliocom
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d bibliocom"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/bibliocom
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Executar testes
+        run: npm test
+
+      - name: Compilar aplicação
+        run: npm run build
+
+      - name: Gerar e verificar OpenAPI
+        run: |
+          node dist/main.js > app.log 2>&1 &
+          APP_PID=$!
+
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3000/api/docs-json > /dev/null; then
+              break
+            fi
+            sleep 2
+          done
+
+          if ! curl -fsS http://localhost:3000/api/docs-json > /dev/null; then
+            cat app.log
+            kill $APP_PID || true
+            exit 1
+          fi
+
+          kill $APP_PID || true
+
+          git diff --exit-code -- openapi.json

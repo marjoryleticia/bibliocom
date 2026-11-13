@@ -1,114 +1,156 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Bibliocom – Sistema de Gerenciamento de Biblioteca
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST desenvolvida com **NestJS, TypeScript, TypeORM e PostgreSQL**, para gerenciamento de obras e exemplares de uma biblioteca.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tecnologias utilizadas
 
-## Description
+- Node.js
+- NestJS
+- TypeScript
+- TypeORM
+- PostgreSQL
+- Swagger
+- class-validator
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Configuração do projeto
 
-## Project setup
+### 1. Instalar dependências
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+### 2. Configurar o banco de dados
+
+Configure a variável `DATABASE_URL` no arquivo `.env` com os dados de conexão do PostgreSQL.
+
+### 3. Executar a aplicação
 
 ```bash
-# development
-$ npm run start
+# Desenvolvimento
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Produção
+npm run start:prod
 ```
 
-## Run tests
+## Documentação da API
+
+Após iniciar a aplicação, acesse:
+
+http://localhost:3000/api/docs
+
+A documentação OpenAPI também está disponível no arquivo `openapi.json`.
+
+## Recursos da API
+
+A API possui operações CRUD para:
+
+- **Obras:** cadastro, consulta, atualização e remoção de obras.
+- **Exemplares:** cadastro, consulta, atualização e remoção de exemplares.
+
+Cada recurso possui cinco rotas REST.
+
+## Exemplos de requisições
+
+Os exemplos consideram a aplicação em execução em `http://localhost:3000`.
+
+### 1. Criar uma obra – HTTP 201
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+curl -i -X POST http://localhost:3000/obras \
+-H "Content-Type: application/json" \
+-d '{"titulo":"Livro de Teste","isbn":"9788522031445","anoPublicacao":1943,"autorId":1}'
 ```
 
-## Deployment
+### 2. Excluir um exemplar – HTTP 204
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Substitua `ID_EXISTENTE` pelo identificador de um exemplar cadastrado.
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+curl -i -X DELETE http://localhost:3000/exemplares/ID_EXISTENTE
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3. Enviar dados inválidos – HTTP 400
 
-## Observability
+```bash
+curl -i -X POST http://localhost:3000/exemplares \
+-H "Content-Type: application/json" \
+-d '{"tombo":"ex-01","estado":"DISPONIVEL","dataAquisicao":"2025-03-15","obraId":1}'
+```
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+### 4. Consultar recurso inexistente – HTTP 404
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+```bash
+curl -i http://localhost:3000/obras/99999
+```
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+### 5. Cadastrar exemplar com tombo duplicado – HTTP 409
 
-## Resources
+O tombo `EX-TESTE-001` precisa já estar cadastrado no banco.
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+curl -i -X POST http://localhost:3000/exemplares \
+-H "Content-Type: application/json" \
+-d '{"tombo":"EX-TESTE-001","estado":"DISPONIVEL","dataAquisicao":"2025-03-15","obraId":1}'
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Validação e tratamento de erros
 
-## Support
+A API utiliza DTOs e `class-validator` para validar os dados recebidos.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+O `ValidationPipe` global está configurado com:
 
-## Stay in touch
+- `whitelist: true`
+- `forbidNonWhitelisted: true`
+- `transform: true`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Principais códigos HTTP utilizados:
 
-## License
+| Código | Significado |
+|---|---|
+| 200 | Operação realizada com sucesso |
+| 201 | Recurso criado |
+| 204 | Recurso removido |
+| 400 | Dados inválidos |
+| 404 | Recurso não encontrado |
+| 409 | Conflito de dados |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Exercícios da atividade
+
+### E07.2 – Códigos de status HTTP
+
+Foram utilizados códigos HTTP adequados para representar os resultados das operações, como 201 para criação, 204 para exclusão, 400 para dados inválidos, 404 para recursos inexistentes e 409 para conflitos.
+
+### E07.3 – DTO de Exemplar
+
+O DTO de criação de exemplar possui validações para os campos tombo, estado, data de aquisição e obra associada, garantindo que os dados recebidos estejam de acordo com as regras definidas.
+
+### E07.7 – Limite de paginação
+
+O limite máximo de registros por página foi removido temporariamente para testar uma requisição com `tamanho=1000`. Sem a validação, a API aceitou a solicitação e retornou os registros disponíveis.
+
+Após restaurar o `@Max(100)`, a mesma requisição passou a retornar HTTP 400, informando que o tamanho máximo permitido é 100.
+
+**Conclusão:** o limite de paginação ajuda a evitar consultas excessivamente grandes, reduzindo o consumo de memória e processamento e protegendo a aplicação contra sobrecarga.
+
+### E07.8 – Documentação OpenAPI e integração contínua
+
+O arquivo `openapi.json` foi gerado a partir da documentação Swagger e incluído no repositório.
+
+Também foi criado um workflow com GitHub Actions (`.github/workflows/ci.yml`) para automatizar a validação da aplicação. O processo instala as dependências, executa os testes, compila o projeto, inicia a API e gera novamente a documentação OpenAPI.
+
+Por fim, o arquivo gerado é comparado com a versão existente no repositório. Caso exista alguma divergência, a verificação falha, indicando que a documentação precisa ser atualizada.
+
+**Objetivo:** manter a documentação da API sincronizada com sua implementação.
+
+## Testes
+
+```bash
+npm run test
+npm run test:e2e
+```
+
+## Licença
+
+Projeto acadêmico desenvolvido para fins educacionais.
